@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "938831407211",
+    "project_id": "paricott-india-papercup",
+    "storage_bucket": "paricott-india-papercup.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:938831407211:android:c4939bb3691f90b3f2292e",
+        "android_client_info": {
+          "package_name": "com.paricottfsm"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDrnFrXyWLjGTKleLjokvCTtW9IdsCF8Vo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
