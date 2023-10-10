@@ -961,11 +961,11 @@ object Pref : PreferenceHolder() {
         "GSTINPANMandatoryforSHOPTYPE4"
     )
     var FSSAILicNoEnableInShop: Boolean by bindToPreferenceField(
-        true,
+        false,
         "FSSAILicNoEnableInShop"
     )
     var FSSAILicNoMandatoryInShop4: Boolean by bindToPreferenceField(
-        true,
+        false,
         "FSSAILicNoMandatoryInShop4"
     )
     //end 16.0 Pref v 4.1.6 Tufan 21/09/2023 mantis 26812 AND 26813  FSSAI Lic No and GSTINPANMandatoryforSHOPTYPE4 In add shop page edit
