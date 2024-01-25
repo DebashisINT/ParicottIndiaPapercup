@@ -341,7 +341,14 @@ class NewOrderListFragment : BaseFragment() {
                                 }
                                 else
                                 {
-                                    (mContext as DashboardActivity).showSnackMessage(getString(R.string.error_msg), 1000)
+                                    //(mContext as DashboardActivity).showSnackMessage(getString(R.string.error_msg), 1000)
+
+                                    // begin Suman 11-10-2023 mantis id 26896
+                                    (mContext as DashboardActivity).showSnackMessage(getString(R.string.success_msg), 1000)
+                                    AppDatabase.getDBInstance()!!.orderDetailsListDao().delete()
+                                    AppDatabase.getDBInstance()!!.orderProductListDao().delete()
+                                    initAdapter(AppDatabase.getDBInstance()!!.orderDetailsListDao().getAll() as ArrayList<OrderDetailsListEntity>)
+                                    // end Suman 11-10-2023 mantis id 26896
                                 }
                             }
 
@@ -488,7 +495,8 @@ class NewOrderListFragment : BaseFragment() {
 
             saveDataAsPdf(it)
 
-        }, {
+        },
+            {
             try {
 
                 if (!Pref.isAddAttendence)
@@ -649,13 +657,30 @@ class NewOrderListFragment : BaseFragment() {
             } catch (e: java.lang.Exception) {
                 e.printStackTrace()
             }
-        }, {
-            if (!TextUtils.isEmpty(it.order_lat) && !TextUtils.isEmpty(it.order_long)) {
-                (mContext as DashboardActivity).openLocationMap(it, false)
+        },
+            {
+                if (!TextUtils.isEmpty(it.order_lat) && !TextUtils.isEmpty(it.order_long)) {
+                    (mContext as DashboardActivity).openLocationMap(it, false)
                 }
-            else{
-                (mContext as DashboardActivity).showSnackMessage("No order location available")
+                else{
+                    (mContext as DashboardActivity).showSnackMessage("No order location available")
                 }
+
+            },
+            {
+                if (!TextUtils.isEmpty(it.order_lat) && !TextUtils.isEmpty(it.order_long)) {
+                    val uri = "https://www.google.com/maps/?q=" + it.order_lat + "," + it.order_long
+                    val sharingIntent = Intent(Intent.ACTION_SEND)
+                    sharingIntent.let {
+                        it.type = "text/plain"
+                        it.putExtra(Intent.EXTRA_TEXT, uri)
+                        startActivity(Intent.createChooser(it, "Share via"))
+                    }
+                }
+                else{
+                    (mContext as DashboardActivity).showSnackMessage("No order location available")
+                }
+
         }, {
             var pdfBody = "Order No.: " + it.order_id + "\n\nOrder Date: " + AppUtils.convertDateTimeToCommonFormat(it.date!!) +
                     "\n\nParty Name: "

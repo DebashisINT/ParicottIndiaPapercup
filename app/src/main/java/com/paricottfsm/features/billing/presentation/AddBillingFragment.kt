@@ -3,9 +3,12 @@ package com.paricottfsm.features.billing.presentation
 import android.Manifest
 import android.app.Activity
 import android.app.DatePickerDialog
+import android.app.Dialog
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -28,6 +31,7 @@ import com.paricottfsm.app.AppDatabase
 import com.paricottfsm.app.NetworkConstant
 import com.paricottfsm.app.Pref
 import com.paricottfsm.app.domain.*
+import com.paricottfsm.app.types.FragType
 import com.paricottfsm.app.utils.AppUtils
 import com.paricottfsm.app.utils.ImagePickerManager
 import com.paricottfsm.app.utils.InputFilterDecimal
@@ -73,6 +77,7 @@ import kotlin.collections.ArrayList
  * Created by Saikat on 19-02-2019.
  */
 // 1.0 AddBillingFragment AppV 4.0.6 saheli 12-01-2023 multiple contact Data added on Api called
+// 2.0 AddBillingFragment AppV 4.2.2 Suman 16-10-2023 mantis id 26908
 class AddBillingFragment : BaseFragment(), View.OnClickListener {
 
     private lateinit var mContext: Context
@@ -1539,6 +1544,16 @@ class AddBillingFragment : BaseFragment(), View.OnClickListener {
 
     fun onConfirmClick() {
 
+        //begin 2.0 AddBillingFragment AppV 4.2.2 Suman 16-10-2023 mantis id 26908
+        var ordAmt = 0.0
+        try{
+            var ordDtls = AppDatabase.getDBInstance()!!.orderDetailsListDao().getSingleOrder(order!!.order_id!!)
+            ordAmt = ordDtls.amount.toString().toDouble()
+        }catch (ex:Exception){
+            ex.printStackTrace()
+        }
+        //end 2.0 AddBillingFragment AppV 4.2.2 Suman 16-10-2023 mantis id 26908
+
         val list = AppDatabase.getDBInstance()!!.billingDao().getDataOrderIdWise(order?.order_id!!)
         var isInvoiceNoAvailable = false
 
@@ -1550,6 +1565,21 @@ class AddBillingFragment : BaseFragment(), View.OnClickListener {
             (mContext as DashboardActivity).showSnackMessage(getString(R.string.error_enter_invoice_amount))
         else if (Pref.willAttachmentCompulsory && TextUtils.isEmpty(/*tv_attachment.text.toString().trim()*/ dataPath))
             (mContext as DashboardActivity).showSnackMessage(getString(R.string.error_select_attachment))
+        else if(ordAmt<et_invoice_amount.text.toString().trim().toDouble()){//begin 2.0 AddBillingFragment AppV 4.2.2 Suman 16-10-2023 mantis id 26908
+            AppUtils.hideSoftKeyboard(mContext as DashboardActivity)
+            //(mContext as DashboardActivity).showSnackMessage("Invoice value is more than Order value. Cannot Proceed.")
+            val simpleDialog = Dialog(mContext)
+            simpleDialog.setCancelable(false)
+            simpleDialog.getWindow()!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+            simpleDialog.setContentView(R.layout.dialog_ok)
+            val dialogHeader = simpleDialog.findViewById(R.id.dialog_yes_header_TV) as AppCustomTextView
+            dialogHeader.text = "Invoice value is more than Order value. Cannot Proceed."
+            val dialogYes = simpleDialog.findViewById(R.id.tv_dialog_yes) as AppCustomTextView
+            dialogYes.setOnClickListener({ view ->
+                simpleDialog.cancel()
+            })
+            simpleDialog.show()
+        }//end 2.0 AddBillingFragment AppV 4.2.2 Suman 16-10-2023 mantis id 26908
         else {
             if (list != null && list.isNotEmpty()) {
 

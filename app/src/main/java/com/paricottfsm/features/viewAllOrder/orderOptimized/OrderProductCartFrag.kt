@@ -26,6 +26,7 @@ import com.paricottfsm.app.Pref
 import com.paricottfsm.app.domain.AddShopDBModelEntity
 import com.paricottfsm.app.domain.OrderDetailsListEntity
 import com.paricottfsm.app.domain.OrderProductListEntity
+import com.paricottfsm.app.domain.OrderStatusRemarksModelEntity
 import com.paricottfsm.app.domain.ProductListEntity
 import com.paricottfsm.app.domain.StockDetailsListEntity
 import com.paricottfsm.app.domain.StockProductListEntity
@@ -36,10 +37,12 @@ import com.paricottfsm.app.utils.ToasterMiddle
 import com.paricottfsm.base.BaseResponse
 import com.paricottfsm.base.presentation.BaseActivity
 import com.paricottfsm.base.presentation.BaseFragment
+import com.paricottfsm.features.addshop.presentation.AddShopFragment
 import com.paricottfsm.features.commondialog.presentation.CommonDialog
 import com.paricottfsm.features.commondialog.presentation.CommonDialogClickListener
 import com.paricottfsm.features.dashboard.presentation.DashboardActivity
 import com.paricottfsm.features.location.LocationWizard
+import com.paricottfsm.features.shopdetail.presentation.ShopDetailFragment
 import com.paricottfsm.features.stock.api.StockRepositoryProvider
 import com.paricottfsm.features.stock.model.AddStockInputParamsModel
 import com.paricottfsm.features.viewAllOrder.AddRemarksSignDialog
@@ -380,6 +383,32 @@ class OrderProductCartFrag : BaseFragment(), View.OnClickListener{
                         productOrderList.add(obj)
                     }
                     AppDatabase.getDBInstance()!!.orderProductListDao().insertAll(productOrderList)
+
+                    ShopDetailFragment.isOrderEntryPressed = false
+                    AddShopFragment.isOrderEntryPressed = false
+
+                    try{
+                        val obj = OrderStatusRemarksModelEntity()
+                        obj.shop_id = orderListDetails.shop_id
+                        obj.user_id = Pref.user_id
+                        obj.order_status = "Success"
+                        obj.order_remarks = "Successful Order"
+                        obj.visited_date_time = AppUtils.getCurrentDateTime()
+                        obj.visited_date = AppUtils.getCurrentDateForShopActi()
+                        obj.isUploaded = false
+
+                        var shopAll = AppDatabase.getDBInstance()!!.shopActivityDao().getShopActivityAll()
+                        if (shopAll.size == 1) {
+                            obj.shop_revisit_uniqKey = shopAll.get(0).shop_revisit_uniqKey
+                        } else if (shopAll.size != 0) {
+                            obj.shop_revisit_uniqKey = shopAll.get(shopAll.size - 1).shop_revisit_uniqKey
+                        }
+                        if (shopAll.size != 0)
+                            AppDatabase.getDBInstance()?.shopVisitOrderStatusRemarksDao()!!.insert(obj)
+                    }catch (ex:Exception){
+                        ex.printStackTrace()
+                    }
+
                     uiThread {
                         progrwss_wheel.stopSpinning()
                         if(shopDtls.isUploaded && AppUtils.isOnline(mContext)){

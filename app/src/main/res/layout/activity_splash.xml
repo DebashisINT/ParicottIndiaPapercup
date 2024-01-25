@@ -8,8 +8,8 @@
 
     <ImageView
         android:id="@+id/logo_new"
-        android:layout_width="@dimen/_135sdp"
-        android:layout_height="@dimen/_100sdp"
+        android:layout_width="@dimen/_185sdp"
+        android:layout_height="@dimen/_110sdp"
         android:src="@drawable/breezelogo"
         android:layout_marginTop="@dimen/_170sdp"
         android:layout_centerHorizontal="true" />
@@ -22,9 +22,9 @@
         android:layout_centerHorizontal="true"
         android:layout_gravity="center"
         android:layout_marginTop="@dimen/_10sdp"
-        android:visibility="gone"
         android:gravity="center|center_horizontal"
         android:text="@string/name_filed_managenent_system"
+        android:visibility="gone"
         android:textColor="#287fb2"
         android:textSize="@dimen/_12sdp"
         android:textStyle="bold" />

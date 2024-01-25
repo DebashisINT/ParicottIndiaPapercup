@@ -275,6 +275,7 @@
                                     android:id="@+id/tv_select_dealer"
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
+                                    android:layout_marginRight="0dp"
                                     android:layout_toLeftOf="@+id/tv_dealer_asterisk_mark"
                                     android:hint="@string/select_dealer"
                                     android:padding="@dimen/_5sdp"
@@ -1996,6 +1997,7 @@
                         android:orientation="vertical">
 
                         <RelativeLayout
+                            android:id="@+id/rl_frag_addshop_model_view"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="@dimen/_10sdp"
@@ -2061,6 +2063,7 @@
                         </RelativeLayout>
 
                         <RelativeLayout
+                            android:id="@+id/rl_frag_addshop_priapp_view"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="@dimen/_10sdp"
@@ -2127,6 +2130,7 @@
                         </RelativeLayout>
 
                         <RelativeLayout
+                            android:id="@+id/rl_frag_addshop_secondapp_view"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="@dimen/_10sdp"
@@ -2257,6 +2261,7 @@
                         </RelativeLayout>
 
                         <RelativeLayout
+                            android:id="@+id/rl_frag_addshop_leadtyp_view"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="@dimen/_10sdp"
@@ -2323,6 +2328,7 @@
                         </RelativeLayout>
 
                         <RelativeLayout
+                            android:id="@+id/rl_frag_addshop_stage_view"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="@dimen/_10sdp"
@@ -2386,8 +2392,8 @@
                                 android:layout_marginLeft="@dimen/_2sdp"
                                 android:background="@color/light_gray" />
                         </RelativeLayout>
-
                         <RelativeLayout
+                            android:id="@+id/rl_frag_addshop_funnelstage_view"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="@dimen/_10sdp"

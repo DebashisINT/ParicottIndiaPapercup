@@ -13,6 +13,8 @@
     <!--Map Key-->
     <!--<string name="MAP_ProjectAPIKey">AIzaSyBRrqsLZFqThqM8uxw_k94pZMbv3-3h0dM</string>-->
     <string name="MAP_ProjectAPIKey" translatable="false">AIzaSyCRik7OGt6BGsEpiijsrO1LDXuMcOtZM7A</string>
+    <string name="facebook_app_id" translatable="false">260734547001450</string>
+    <string name="fb_login_protocol_scheme" translatable="false">fb260734547001450</string>
 
     <!--Login-->
     <string name="username_new" translatable="false">Username</string>
@@ -1435,7 +1437,6 @@
         even when the app is closed or not in use.</string>
 
 
-
     <!--My Jobs-->
     <string name="view_details" translatable="false">View Details</string>
     <string name="cust_name" translatable="false">ICICI-WB-SALTLAKE</string>
@@ -1581,7 +1582,12 @@
     <string name="camera_back" translatable="false">Back Camera :\u0020 </string>
     <string name="camera_front" translatable="false">Front Camera :\u0020 </string>
     <string name="historys" translatable="false">Historys</string>
-    <string name="firebase_key" translatable="false">key=AAAA2pa2aGs:APA91bEu6_6JpijKb-zT_mDY4GrgGd6WBhPX0DAkmH-oINIg7cQHk9uWLm5mnb4zlZOsxHy956MEUKQ8cFmzVi2u3y2IB0Ps-d9cORJeqhyHu1RAcaBLQPnIKbjjW762ctbFqqcpSCjw</string>
+    <!--<string name="firebase_key" translatable="false">key=AAAAIoWfCpc:APA91bEMOPyfjsyziPC1WYJiPHjzdmTQJmAOKP0fM24iXI9BgrmyhH4uLY6Jd-6Lpjp8mvSdpSp-zm20ApTOYQ3Ean4m6LicJ5CoECS_v5u2PUAwA8E6FLsu2ZC6_WxuSYnTTLzlUi4E</string>-->
+
+    <string name="PART_1" translatable="false">key=AAAA2pa2aGs:APA91bEu6_6JpijKb-zT_mDY4GrgGd6WBhPX0DAkmH-</string>
+    <string name="PART_2" translatable="false">oINIg7cQHk9uWLm5mnb4zlZOsxHy956MEUKQ8cFmzVi2u3y2IB0Ps-</string>
+    <string name="PART_3" translatable="false">d9cORJeqhyHu1RAcaBLQPnIKbjjW76</string>
+    <string name="PART_4" translatable="false">2ctbFqqcpSCjw</string>
 
     <string name="GenderTextNewOrd" translatable="false">Gender</string>
     <string name="ProductTextNewOrd" translatable="false">Product Type</string>

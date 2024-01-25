@@ -232,8 +232,9 @@ class LocalShopsListAdapter(context: Context, list: List<AddShopDBModelEntity>, 
                 if (Pref.isMultipleVisitEnable) {
 
              //Begin 2.0 Pref v 4.1.6 Tufan 07/09/2023 mantis 26785 Work
-                    val multipleVisitShopList = AppDatabase.getDBInstance()!!.shopActivityDao().getMultipleVisitShopByShopId(list[
-                            adapterPosition].shop_id, AppUtils.getCurrentDateForShopActi())
+                    var sId = list[adapterPosition].shop_id
+                    var dt = AppUtils.getCurrentDateForShopActi()
+                    val multipleVisitShopList = AppDatabase.getDBInstance()!!.shopActivityDao().getMultipleVisitShopByShopId(list[adapterPosition].shop_id, AppUtils.getCurrentDateForShopActi())
                     if(multipleVisitShopList.size >0 ){
                         var duration = AppUtils.geTimeDuration(multipleVisitShopList[0].visited_date!!,AppUtils.getCurrentISODateTime())
                         if(duration.toInt() > Pref.MultiVisitIntervalInMinutes.toInt()){

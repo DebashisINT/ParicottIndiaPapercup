@@ -2,6 +2,7 @@ package com.paricottfsm.features.splash.presentation
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.annotation.TargetApi
 import android.app.Activity
 import android.app.Dialog
 import android.content.ComponentName
@@ -22,8 +23,11 @@ import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationManagerCompat
 import com.paricottfsm.BuildConfig
 import com.paricottfsm.R
+import com.paricottfsm.app.AppDatabase
 import com.paricottfsm.app.NetworkConstant
 import com.paricottfsm.app.Pref
+import com.paricottfsm.app.domain.AddShopDBModelEntity
+import com.paricottfsm.app.domain.CallHisEntity
 import com.paricottfsm.app.uiaction.DisplayAlert
 import com.paricottfsm.app.utils.AppUtils
 import com.paricottfsm.app.utils.FileLoggingTree
@@ -39,6 +43,7 @@ import com.paricottfsm.features.dashboard.presentation.DashboardActivity
 import com.paricottfsm.features.location.LocationWizard
 import com.paricottfsm.features.location.SingleShotLocationProvider
 import com.paricottfsm.features.login.presentation.LoginActivity
+import com.paricottfsm.features.nearbyshops.presentation.ShopCallHisFrag
 import com.paricottfsm.features.splash.presentation.api.VersionCheckingRepoProvider
 import com.paricottfsm.features.splash.presentation.model.VersionCheckingReponseModel
 import com.paricottfsm.widgets.AppCustomTextView
@@ -155,6 +160,8 @@ class SplashActivity : BaseActivity(), GpsStatusDetector.GpsStatusDetectorCallBa
     }
 
 
+
+
     fun checkBatteryOptiSettings(){
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             val intent = Intent()
@@ -241,6 +248,7 @@ class SplashActivity : BaseActivity(), GpsStatusDetector.GpsStatusDetectorCallBa
             Timber.d("Permission Name"+permListDenied.get(i).permissionName + " Status : Denied")
         }
     }
+
 
     private fun initPermissionCheck() {
 

@@ -22,6 +22,7 @@ import android.location.LocationManager
 import android.os.*
 import android.text.TextUtils
 import android.util.Log
+import android.view.View
 import androidx.annotation.NonNull
 import androidx.annotation.Nullable
 import androidx.annotation.RequiresApi
@@ -29,6 +30,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.paricottfsm.MonitorBroadcast
+import com.paricottfsm.MultiFun
 import com.paricottfsm.R
 import com.paricottfsm.app.*
 import com.paricottfsm.app.Pref.tempDistance
@@ -45,6 +47,9 @@ import com.paricottfsm.base.presentation.BaseActivity.Companion.isMeetingUpdatin
 import com.paricottfsm.base.presentation.BaseActivity.Companion.isShopActivityUpdating
 import com.paricottfsm.features.addshop.api.AddShopRepositoryProvider
 import com.paricottfsm.features.addshop.model.AddShopRequestCompetetorImg
+import com.paricottfsm.features.addshop.model.AddShopRequestData
+import com.paricottfsm.features.addshop.model.AddShopResponse
+import com.paricottfsm.features.contacts.CallHisDtls
 import com.paricottfsm.features.dashboard.presentation.DashboardActivity
 import com.paricottfsm.features.dashboard.presentation.SystemEventReceiver
 import com.paricottfsm.features.dashboard.presentation.api.ShopVisitImageUploadRepoProvider
@@ -57,9 +62,11 @@ import com.paricottfsm.features.location.ideallocapi.IdealLocationRepoProvider
 import com.paricottfsm.features.location.model.*
 import com.paricottfsm.features.location.shopRevisitStatus.ShopRevisitStatusRepositoryProvider
 import com.paricottfsm.features.location.shopdurationapi.ShopDurationRepositoryProvider
+import com.paricottfsm.features.login.presentation.LoginActivity
 import com.paricottfsm.features.orderhistory.api.LocationUpdateRepositoryProviders
 import com.paricottfsm.features.orderhistory.model.LocationData
 import com.paricottfsm.features.orderhistory.model.LocationUpdateRequest
+import com.paricottfsm.features.shopdetail.presentation.api.EditShopRepoProvider
 import com.paricottfsm.widgets.AppCustomTextView
 
 import com.google.android.gms.common.ConnectionResult
@@ -316,6 +323,8 @@ class LocationFuzedService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
                 notificationChannel.lightColor = applicationContext.getColor(R.color.colorPrimary)
                 notificationChannel.enableVibration(true)
                 notificationChannel.lockscreenVisibility = Notification.VISIBILITY_PUBLIC
+
+               // println("puja")
                 notificationManager.createNotificationChannel(notificationChannel)
 
                 val notification = NotificationCompat.Builder(this)
@@ -629,6 +638,7 @@ class LocationFuzedService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
         if (lastLocation != null && lastLocation.latitude != null && lastLocation.latitude != 0.0) {
             Pref.current_latitude = lastLocation.latitude.toString()
             Pref.current_longitude = lastLocation.longitude.toString()
+            Pref.current_pincode = LocationWizard.getPostalCode(this, lastLocation.latitude, lastLocation.longitude)
         }
 
         requestLocationUpdates()
@@ -664,13 +674,59 @@ class LocationFuzedService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
         Timber.d("service_tag onLocationChanged")
         //return
 
+      /*  try{
+            val pm = this.getSystemService(Context.POWER_SERVICE) as PowerManager
+            var sett = pm.isIgnoringBatteryOptimizations(packageName)
+            if(sett == false && Pref.IsLoggedIn){
+                println("service_battert_tag if")
+                Pref.IsAutoLogoutFromBatteryCheck = true
+                //(AppUtils.contx as DashboardActivity).loadFragment(FragType.LogoutSyncFragment, false, "")
+                (AppUtils.contx as DashboardActivity).batteryCheck(FragType.LogoutSyncFragment, false,"")
+            }else{
+                println("service_battert_tag else")
+            }
+        }catch (ex:Exception){
+            ex.printStackTrace()
+            Pref.IsAutoLogoutFromBatteryCheck = false
+            println("service_battert_tag ex")
+        }*/
+
+        try{
+            var curentTimeStamp = System.currentTimeMillis()
+            var schTodayL = AppDatabase.getDBInstance()!!.schedulerMasterDao().getSchedulerByDate(AppUtils.getCurrentDateForShopActi(),isActivityDone = false) as ArrayList<SchedulerMasterEntity>
+            if(schTodayL.size>0){
+                for(i in 0..schTodayL.size-1){
+                    var selectTimestamp = schTodayL.get(i).select_timestamp.toLong()
+                    if(curentTimeStamp>selectTimestamp){
+                        Timber.d("tag_scheduler_fire ${schTodayL.get(i).scheduler_name}")
+                            for(i in 0..schTodayL.size-1){
+                                var shopObj = AppDatabase.getDBInstance()!!.addShopEntryDao().getShopByIdN(schTodayL.get(i).select_contact_id)
+                                doAsync {
+                                    MultiFun.generateContactDtlsPdf(shopObj,this@LocationFuzedService)
+                                    uiThread {
+                                        AppDatabase.getDBInstance()!!.schedulerMasterDao().updateSchedulerSucess(schTodayL.get(i).select_contact_id,schTodayL.get(i).select_timestamp,schTodayL.get(i).save_date_time,true)
+                                    }
+                                }
+                            }
+                    }else{
+                        Timber.d("tag_scheduler_fire else")
+                    }
+                }
+            }
+        }catch (ex:Exception){
+            ex.printStackTrace()
+        }
+
         try {
             println("service_tag ${Pref.current_latitude.toString()} long - ${Pref.current_longitude.toString()}")
+
             if (location != null) {
                 // 8.0 LocationFuzedService AppV 4.0.7 Suman   18/03/2023 Location lat-long updation
                 AppUtils.mLocation = location
                 Pref.current_latitude = location.latitude.toString()
                 Pref.current_longitude = location.longitude.toString()
+                //Pref.current_address = LocationWizard.getNewLocationName(this, location.latitude, location.longitude)
+                //Pref.current_pincode = LocationWizard.getPostalCode(this, location.latitude, location.longitude)
                 //XLog.d("onLocationChanged : loc_update : lat - ${Pref.current_latitude.toString()} long - ${Pref.current_longitude.toString()}" + AppUtils.getCurrentDateTime())
                 Timber.d("onLocationChanged : loc_update : lat - ${Pref.current_latitude.toString()} long - ${Pref.current_longitude.toString()} " + AppUtils.getCurrentDateTime())
             }
@@ -879,12 +935,18 @@ class LocationFuzedService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
 
         /*Sync all data*/
         syncLocationActivity()
+        if (AppUtils.isOnline(this) && Pref.IsCallLogHistoryActivated) {
+            syncCallHistory()
+        }
 
         //if (!BaseActivity.isApiInitiated)
 
         if(AppUtils.isOnline(this)){
             callShopDurationApi()
         }
+
+        checkToCallEditShop()
+
         //syncShopVisitImage()
 
         //callCompetetorImgUploadApi()
@@ -922,12 +984,12 @@ class LocationFuzedService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
 
         var accuracy = 0f
         accuracy = if (AppUtils.isOnline(this))
-            AppUtils.minAccuracy.toFloat()
+            //AppUtils.minAccuracy.toFloat()
+            Pref.minAccuracy.toFloat()
         else
             800f
 
         //accuracy=1f
-
         /*Discard Data if Inaccurate*/
         if (location.accuracy > accuracy /*&& shouldLocationUpdate()*/) {
             //if (location.accuracy > 2 /*&& shouldLocationUpdate()*/) {
@@ -2236,6 +2298,7 @@ class LocationFuzedService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
             }
 
             distanceCovered += allLocationList[i].distance.toDouble()
+            Timber.d(" all loc ${allLocationList.get(i).latitude} ${allLocationList.get(i).longitude} $distanceCovered")
 
             if (!TextUtils.isEmpty(allLocationList[i].home_duration)) {
                 Timber.e("Home Duration (Location Fuzed Service)==> ${allLocationList[i].home_duration}")
@@ -2288,6 +2351,7 @@ class LocationFuzedService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
                         Timber.e("Time (Location Fuzed Service)=================> ${allLocationList[i].time}")*/
                     }
                     apiLocationList.add(allLocationList[i])
+                    Timber.d(" api loc ${apiLocationList.get(i).latitude} ${apiLocationList.get(i).longitude} $distanceCovered")
                     distanceCovered = 0.0
                     timeStamp = 0L
                 }
@@ -2326,11 +2390,18 @@ class LocationFuzedService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
 
                 // 7.0 LocationFuzedService AppV 4.0.7 Suman   06/03/2023 Location name Unknown rectification 25715
                 try {
-                    if (locationData.location_name.equals("Unknown")) {
+                    if (locationData.location_name.equals("Unknown",ignoreCase = true)) {
                         locationData.location_name = LocationWizard.getLocationName(this, locationData.latitude!!.toDouble(), locationData.longitude!!.toDouble())
+                    }
+                    if(locationData.location_name.equals("Unknown",ignoreCase = true)){
+                        locationData.location_name = LocationWizard.getAdressFromLatlng(this, locationData.latitude!!.toDouble(), locationData.longitude!!.toDouble())
+                    }
+                    if(locationData.location_name.equals("Unknown",ignoreCase = true)){
+                        locationData.location_name = LocationWizard.getNewLocationName(this, locationData.latitude!!.toDouble(), locationData.longitude!!.toDouble())
                     }
                 } catch (ex: Exception) {
                     ex.printStackTrace()
+                    locationData.location_name = "Unknown"
                 }
 
 
@@ -2401,6 +2472,54 @@ class LocationFuzedService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
             )
         } else
             isLocationActivityUpdating = false
+    }
+
+
+    private fun syncCallHistory() {
+        Timber.d("syncCallHistory : ENTER")
+        if (!shouldCallHistorySyncUpdate())
+            return
+        Timber.d("syncLocationActivity : Call Api")
+        if (Pref.user_id.isNullOrEmpty())
+            return
+        var unSyncedList= AppDatabase.getDBInstance()!!.callhisDao().getUnSyncData(false) as ArrayList<CallHisEntity>
+        if (unSyncedList.size > 0){
+            var syncObj: CallHisDtls = CallHisDtls()
+            syncObj.user_id = Pref.user_id.toString()
+            syncObj.call_his_list.addAll(unSyncedList)
+
+            val repository = EditShopRepoProvider.provideEditShopWithoutImageRepository()
+            BaseActivity.compositeDisposable.add(
+                repository.callLogListSaveApi(syncObj)
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribeOn(Schedulers.io())
+                    .subscribe({ result ->
+                        val resp = result as BaseResponse
+                        if (resp.status == NetworkConstant.SUCCESS) {
+                            Timber.d("syncCallHisInfo API success")
+                            doAsync {
+                                for (i in 0..unSyncedList.size - 1) {
+                                    AppDatabase.getDBInstance()!!.callhisDao().updateCallHisIsUpload(
+                                        unSyncedList.get(i).shop_id,
+                                        unSyncedList.get(i).call_number,
+                                        unSyncedList.get(i).call_time,
+                                        unSyncedList.get(i).call_date,
+                                        true
+                                    )
+                                }
+                                uiThread {
+
+                                }
+                            }
+                        } else {
+                            Timber.d("syncCallHisInfo API Failure")
+                        }
+                    }, { error ->
+                        error.printStackTrace()
+                        Timber.d("syncCallHisInfo:==>"+error.message.toString())
+                    })
+            )
+        }
     }
 
     private fun storeId(location: UserLocationDataEntity, locationListAllId: MutableList<LocationData>) {
@@ -2495,6 +2614,21 @@ class LocationFuzedService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
         }
 
     }
+
+    private fun shouldCallHistorySyncUpdate(): Boolean {
+        AppUtils.changeLanguage(this, "en")
+        return if (abs(System.currentTimeMillis() - Pref.shouldCallHisSync) > 1000 * 60 * 11) {
+            Pref.shouldCallHisSync = System.currentTimeMillis()
+            changeLocale()
+            true
+            //server timestamp is within 5 minutes of current system time
+        } else {
+            changeLocale()
+            false
+        }
+
+    }
+
 
     private fun shouldIdealLocationUpdate(): Boolean {
         AppUtils.changeLanguage(this, "en")
@@ -2822,6 +2956,34 @@ class LocationFuzedService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
                 }
             }*/
 
+        //begin distance correction
+        try{
+            val locList = AppDatabase.getDBInstance()!!.userLocationDataDao().getLocationUpdateForADay(AppUtils.getCurrentDateForShopActi())
+            if (locList != null && locList.isNotEmpty()) {
+                var obj = locList.get(locList.size-1)
+                var prevDateTime = obj.updateDateTime
+                var savingDateTime = location.updateDateTime
+                var diffInMin = AppUtils.getDiffDateTime(prevDateTime.toString(),savingDateTime.toString())
+                Timber.d("LocFuzed final loc data diffInMin: $diffInMin  location.distance ${location.distance}" )
+                println("tag_x_dist diffInMin: $diffInMin  location.distance ${location.distance} lat:long ${location.latitude},${location.longitude}")
+                //mantis id 27172 begin
+                if(diffInMin<3 && location.distance.toDouble().toInt()>8){
+                    location.distance = ((AppUtils.maxDistance.toDouble()/1000)*diffInMin).toString()
+                    Timber.d("LocFuzed final loc data inside if diffInMin: $diffInMin  location.distance ${location.distance}" )
+                    println("tag_x_dist inside if diffInMin: $diffInMin  location.distance ${location.distance} lat:long ${location.latitude},${location.longitude}")
+                }
+                //mantis id 27172 end
+            }
+        }catch (ex:Exception){
+            ex.printStackTrace()
+        }
+        //end distance correction
+
+        Timber.d(" save loc ${location.latitude} ${location.longitude} ${location.distance}")
+
+
+        println("distance_loc_tag insert accu loc ${location.locationId} ${location.latitude} ${location.longitude} ${location.distance}")
+        //Timber.d("distance_loc_tag ${location.locationId} ${location.latitude} ${location.longitude} ${location.distance}")
 
         AppDatabase.getDBInstance()!!.userLocationDataDao().insertAll(location)
 //        XLog.d("Shop to shop distance (At accurate loc save time)====> " + Pref.totalS2SDistance)
@@ -3414,6 +3576,9 @@ class LocationFuzedService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
 
                     if(shopDurationApiReqForNewShop.shop_list!!.size>0){
                         uploadNewShopVisit(shopDurationApiReqForNewShop,newShopList,shopDataList as ArrayList<ShopDurationRequestData>)
+                        if(!revisitStatusList.isEmpty()){
+                            callRevisitStatusUploadApi(revisitStatusList!!)
+                        }
                     }
                     Handler().postDelayed(Runnable {
                         if(shopDurationApiReqForOldShop.shop_list!!.size>0){ compositeDisposable.add(
@@ -3572,35 +3737,39 @@ class LocationFuzedService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
 
 
     private fun callRevisitStatusUploadApi(revisitStatusList: MutableList<ShopRevisitStatusRequestData>) {
-        val revisitStatus = ShopRevisitStatusRequest()
-        revisitStatus.user_id = Pref.user_id
-        revisitStatus.session_token = Pref.session_token
-        revisitStatus.ordernottaken_list = revisitStatusList
+        try{
+            val revisitStatus = ShopRevisitStatusRequest()
+            revisitStatus.user_id = Pref.user_id
+            revisitStatus.session_token = Pref.session_token
+            revisitStatus.ordernottaken_list = revisitStatusList
 
-        val repository = ShopRevisitStatusRepositoryProvider.provideShopRevisitStatusRepository()
-        compositeDisposable.add(
+            val repository = ShopRevisitStatusRepositoryProvider.provideShopRevisitStatusRepository()
+            compositeDisposable.add(
                 repository.shopRevisitStatus(revisitStatus)
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribeOn(Schedulers.io())
-                        .subscribe({ result ->
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribeOn(Schedulers.io())
+                    .subscribe({ result ->
 //                            XLog.d("callRevisitStatusUploadApi : RESPONSE " + result.status)
-                            Timber.d("callRevisitStatusUploadApi : RESPONSE " + result.status)
-                            if (result.status == NetworkConstant.SUCCESS) {
-                                for (i in revisitStatusList.indices) {
-                                    AppDatabase.getDBInstance()?.shopVisitOrderStatusRemarksDao()!!.updateOrderStatus(revisitStatusList[i]!!.shop_revisit_uniqKey!!)
-                                }
+                        Timber.d("callRevisitStatusUploadApi : RESPONSE " + result.status)
+                        if (result.status == NetworkConstant.SUCCESS) {
+                            for (i in revisitStatusList.indices) {
+                                AppDatabase.getDBInstance()?.shopVisitOrderStatusRemarksDao()!!.updateOrderStatus(revisitStatusList[i]!!.shop_revisit_uniqKey!!)
                             }
-                        }, { error ->
-                            if (error == null) {
+                        }
+                    }, { error ->
+                        if (error == null) {
 //                                XLog.d("callRevisitStatusUploadApi : ERROR " + "UNEXPECTED ERROR IN SHOP ACTIVITY API")
-                                Timber.d("callRevisitStatusUploadApi : ERROR " + "UNEXPECTED ERROR IN SHOP ACTIVITY API")
-                            } else {
+                            Timber.d("callRevisitStatusUploadApi : ERROR " + "UNEXPECTED ERROR IN SHOP ACTIVITY API")
+                        } else {
 //                                XLog.d("callRevisitStatusUploadApi : ERROR " + error.localizedMessage)
-                                Timber.d("callRevisitStatusUploadApi : ERROR " + error.localizedMessage)
-                                error.printStackTrace()
-                            }
-                        })
-        )
+                            Timber.d("callRevisitStatusUploadApi : ERROR " + error.localizedMessage)
+                            error.printStackTrace()
+                        }
+                    })
+            )
+        }catch (ex:Exception){
+            ex.printStackTrace()
+        }
     }
 
 
@@ -3908,8 +4077,10 @@ class LocationFuzedService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
             userlocation.home_distance = (distance * 1000).toString()
             Timber.e("LocationFuzedService: home_distance=> ${userlocation.home_distance} Meter")
 
-            if (distance * 1000 > Pref.homeLocDistance.toDouble())
+            if (distance * 1000 > Pref.homeLocDistance.toDouble()){
+                Timber.e("calculateAccurateDistance calling ${maxDis}")
                 calculateAccurateDistance(userlocation, maxDis, location)
+            }
             else {
                 Timber.e("=User is at home location (Location Fuzed Service)=")
                 userlocation.distance = "0.0"
@@ -4038,7 +4209,7 @@ class LocationFuzedService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
 
         //distance = 1.21
 
-        Timber.e("Original Distance (LocationFuzedService)===> $distance")
+        Timber.e("calculateAccurateDistance Original Distance (LocationFuzedService)===> $distance ${mLastLocation?.latitude!!} ${mLastLocation?.longitude!!} ${userlocation.latitude.toDouble()} ${userlocation.longitude.toDouble()}")
 
         if (distance * 1000 >= AppUtils.minDistance.toDouble() && distance * 1000 <= maxDis /*AppUtils.maxDistance.toDouble()*/) {
             /*resetData()
@@ -4768,6 +4939,224 @@ class LocationFuzedService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
                             }
                         })
         )
+    }
+
+
+    var jj = 0
+    fun checkToCallEditShop(){
+        try{
+            val list = AppDatabase.getDBInstance()!!.addShopEntryDao().getUnsyncEditShop(0, true)
+            if (list != null && list.size > 0) {
+                jj = 0
+                editShop(list)
+            }
+        }catch (ex:Exception){
+            ex.printStackTrace()
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+    private fun editShop(list: MutableList<AddShopDBModelEntity>) {
+        try{
+            val addShopData = AddShopRequestData()
+            val mAddShopDBModelEntity = list[jj]
+            addShopData.session_token = Pref.session_token
+            addShopData.address = mAddShopDBModelEntity.address
+            addShopData.owner_contact_no = mAddShopDBModelEntity.ownerContactNumber
+            addShopData.owner_email = mAddShopDBModelEntity.ownerEmailId
+            addShopData.owner_name = mAddShopDBModelEntity.ownerName
+            addShopData.pin_code = mAddShopDBModelEntity.pinCode
+            addShopData.shop_lat = mAddShopDBModelEntity.shopLat.toString()
+            addShopData.shop_long = mAddShopDBModelEntity.shopLong.toString()
+            addShopData.shop_name = mAddShopDBModelEntity.shopName.toString()
+            addShopData.type = mAddShopDBModelEntity.type.toString()
+            addShopData.shop_id = mAddShopDBModelEntity.shop_id
+            addShopData.user_id = Pref.user_id
+            addShopData.assigned_to_dd_id = mAddShopDBModelEntity.assigned_to_dd_id
+            addShopData.assigned_to_pp_id = mAddShopDBModelEntity.assigned_to_pp_id
+            addShopData.added_date = ""
+            addShopData.amount = addShopData.amount
+            addShopData.area_id = addShopData.area_id
+            addShopData.model_id = addShopData.model_id
+            addShopData.primary_app_id = addShopData.primary_app_id
+            addShopData.secondary_app_id = addShopData.secondary_app_id
+            addShopData.lead_id = addShopData.lead_id
+            addShopData.stage_id = addShopData.stage_id
+            addShopData.funnel_stage_id = addShopData.funnel_stage_id
+            addShopData.booking_amount = addShopData.booking_amount
+            addShopData.type_id = addShopData.type_id
+
+            if (!TextUtils.isEmpty(mAddShopDBModelEntity.dateOfBirth))
+                addShopData.dob = AppUtils.changeAttendanceDateFormatToCurrent(mAddShopDBModelEntity.dateOfBirth)
+
+            if (!TextUtils.isEmpty(mAddShopDBModelEntity.dateOfAniversary))
+                addShopData.date_aniversary = AppUtils.changeAttendanceDateFormatToCurrent(mAddShopDBModelEntity.dateOfAniversary)
+
+            addShopData.director_name = mAddShopDBModelEntity.director_name
+            addShopData.key_person_name = mAddShopDBModelEntity.person_name
+            addShopData.phone_no = mAddShopDBModelEntity.person_no
+
+            if (!TextUtils.isEmpty(mAddShopDBModelEntity.family_member_dob))
+                addShopData.family_member_dob = AppUtils.changeAttendanceDateFormatToCurrent(mAddShopDBModelEntity.family_member_dob)
+
+            if (!TextUtils.isEmpty(mAddShopDBModelEntity.add_dob))
+                addShopData.addtional_dob = AppUtils.changeAttendanceDateFormatToCurrent(mAddShopDBModelEntity.add_dob)
+
+            if (!TextUtils.isEmpty(mAddShopDBModelEntity.add_doa))
+                addShopData.addtional_doa = AppUtils.changeAttendanceDateFormatToCurrent(mAddShopDBModelEntity.add_doa)
+
+            addShopData.specialization = mAddShopDBModelEntity.specialization
+            addShopData.category = mAddShopDBModelEntity.category
+            addShopData.doc_address = mAddShopDBModelEntity.doc_address
+            addShopData.doc_pincode = mAddShopDBModelEntity.doc_pincode
+            addShopData.is_chamber_same_headquarter = mAddShopDBModelEntity.chamber_status.toString()
+            addShopData.is_chamber_same_headquarter_remarks = mAddShopDBModelEntity.remarks
+            addShopData.chemist_name = mAddShopDBModelEntity.chemist_name
+            addShopData.chemist_address = mAddShopDBModelEntity.chemist_address
+            addShopData.chemist_pincode = mAddShopDBModelEntity.chemist_pincode
+            addShopData.assistant_contact_no = mAddShopDBModelEntity.assistant_no
+            addShopData.average_patient_per_day = mAddShopDBModelEntity.patient_count
+            addShopData.assistant_name = mAddShopDBModelEntity.assistant_name
+
+            if (!TextUtils.isEmpty(mAddShopDBModelEntity.doc_family_dob))
+                addShopData.doc_family_member_dob = AppUtils.changeAttendanceDateFormatToCurrent(mAddShopDBModelEntity.doc_family_dob)
+
+            if (!TextUtils.isEmpty(mAddShopDBModelEntity.assistant_dob))
+                addShopData.assistant_dob = AppUtils.changeAttendanceDateFormatToCurrent(mAddShopDBModelEntity.assistant_dob)
+
+            if (!TextUtils.isEmpty(mAddShopDBModelEntity.assistant_doa))
+                addShopData.assistant_doa = AppUtils.changeAttendanceDateFormatToCurrent(mAddShopDBModelEntity.assistant_doa)
+
+            if (!TextUtils.isEmpty(mAddShopDBModelEntity.assistant_family_dob))
+                addShopData.assistant_family_dob = AppUtils.changeAttendanceDateFormatToCurrent(mAddShopDBModelEntity.assistant_family_dob)
+
+            addShopData.entity_id = mAddShopDBModelEntity.entity_id
+            addShopData.party_status_id = mAddShopDBModelEntity.party_status_id
+            addShopData.retailer_id = mAddShopDBModelEntity.retailer_id
+            addShopData.dealer_id = mAddShopDBModelEntity.dealer_id
+            addShopData.beat_id = mAddShopDBModelEntity.beat_id
+            addShopData.assigned_to_shop_id = mAddShopDBModelEntity.assigned_to_shop_id
+            addShopData.actual_address = mAddShopDBModelEntity.actual_address
+
+            /*14-12-2021*/
+            if (addShopData.agency_name!=null && !addShopData.agency_name.equals("")) {
+                addShopData.agency_name = addShopData.agency_name!!
+            }
+            else {
+                addShopData.agency_name = ""
+            }
+
+            /*11-02-2022*/
+            addShopData.landline_number = mAddShopDBModelEntity.landline_number
+            addShopData.alternateNoForCustomer = mAddShopDBModelEntity.alternateNoForCustomer
+            addShopData.whatsappNoForCustomer = mAddShopDBModelEntity.whatsappNoForCustomer
+
+            /*GSTIN & PAN NUMBER*/
+            if (addShopData.GSTN_Number!=null && !addShopData.GSTN_Number.equals("")) {
+                mAddShopDBModelEntity.gstN_Number = addShopData.GSTN_Number!!
+            }
+            else {
+                mAddShopDBModelEntity.gstN_Number = ""
+            }
+
+            if (addShopData.ShopOwner_PAN!=null && !addShopData.ShopOwner_PAN.equals("")) {
+                mAddShopDBModelEntity.shopOwner_PAN = addShopData.ShopOwner_PAN!!
+            }
+            else {
+                mAddShopDBModelEntity.shopOwner_PAN = ""
+            }
+
+            try{
+                if(mAddShopDBModelEntity.isUpdateAddressFromShopMaster!!){
+                    addShopData.isUpdateAddressFromShopMaster = true
+                }else{
+                    addShopData.isUpdateAddressFromShopMaster = false
+                }
+                Timber.d("tag_update addr ${mAddShopDBModelEntity.isUpdateAddressFromShopMaster} ${addShopData.isUpdateAddressFromShopMaster}")
+            }catch (ex:Exception){
+                ex.printStackTrace()
+                addShopData.isUpdateAddressFromShopMaster = false
+                Timber.d("tag_update addr ex ${addShopData.isUpdateAddressFromShopMaster}")
+            }
+
+            val index = addShopData.shop_id!!.indexOf("_")
+            if (mAddShopDBModelEntity.shopImageLocalPath != null)
+                Timber.d("shop image path====> " + mAddShopDBModelEntity.shopImageLocalPath)
+
+            if (mAddShopDBModelEntity.doc_degree != null)
+                Timber.d("doctor degree image path=======> " + mAddShopDBModelEntity.doc_degree)
+
+            // contact module
+            try{
+                addShopData.address = mAddShopDBModelEntity.address
+                addShopData.actual_address = mAddShopDBModelEntity.address
+                addShopData.shop_firstName= mAddShopDBModelEntity.crm_firstName
+                addShopData.shop_lastName=  mAddShopDBModelEntity.crm_lastName
+                addShopData.crm_companyID=  if(mAddShopDBModelEntity.companyName_id.equals("")) "0" else mAddShopDBModelEntity.companyName_id
+                addShopData.crm_jobTitle=  mAddShopDBModelEntity.jobTitle
+                addShopData.crm_typeID=  if(mAddShopDBModelEntity.crm_type_ID.equals("")) "0" else mAddShopDBModelEntity.crm_type_ID
+                addShopData.crm_statusID=  if(mAddShopDBModelEntity.crm_status_ID.equals("")) "0" else mAddShopDBModelEntity.crm_status_ID
+                addShopData.crm_sourceID= if(mAddShopDBModelEntity.crm_source_ID.equals("")) "0" else mAddShopDBModelEntity.crm_source_ID
+                addShopData.crm_reference=  mAddShopDBModelEntity.crm_reference
+                addShopData.crm_referenceID=  if(mAddShopDBModelEntity.crm_reference_ID.equals("")) "0" else mAddShopDBModelEntity.crm_reference_ID
+                addShopData.crm_referenceID_type=  mAddShopDBModelEntity.crm_reference_ID_type
+                addShopData.crm_stage_ID=  if(mAddShopDBModelEntity.crm_stage_ID.equals("")) "0" else mAddShopDBModelEntity.crm_stage_ID
+                addShopData.assign_to=  mAddShopDBModelEntity.crm_assignTo_ID
+                addShopData.saved_from_status=  mAddShopDBModelEntity.crm_saved_from
+            }catch (ex:Exception){
+                ex.printStackTrace()
+                Timber.d("Logout edit sync err ${ex.message}")
+            }
+
+            if (TextUtils.isEmpty(mAddShopDBModelEntity.shopImageLocalPath) && TextUtils.isEmpty(mAddShopDBModelEntity.doc_degree)) {
+                val repository = EditShopRepoProvider.provideEditShopWithoutImageRepository()
+                BaseActivity.compositeDisposable.add(
+                    repository.editShop(addShopData)
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribeOn(Schedulers.io())
+                        .subscribe({ result ->
+                            val addShopResult = result as AddShopResponse
+                            Timber.d("Edit Shop : " + ", SHOP: " + addShopData.shop_name + ", STATUS: " + addShopResult.status + ",RESPONSE:" + result.message)
+                            if (addShopResult.status == NetworkConstant.SUCCESS) {
+                                AppDatabase.getDBInstance()!!.addShopEntryDao().updateIsEditUploaded(1, addShopData.shop_id)
+                                jj++
+                                if (jj < list.size) {
+                                    editShop(list)
+                                }else{
+                                    jj=0
+                                }
+                            }
+                        }, { error ->
+                            error.printStackTrace()
+                        })
+                )
+            }
+            else {
+                val repository = EditShopRepoProvider.provideEditShopRepository()
+                BaseActivity.compositeDisposable.add(
+                    repository.addShopWithImage(addShopData, mAddShopDBModelEntity.shopImageLocalPath, mAddShopDBModelEntity.doc_degree, this)
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribeOn(Schedulers.io())
+                        .subscribe({ result ->
+                            val addShopResult = result as AddShopResponse
+                            Timber.d("Edit Shop : " + ", SHOP: " + addShopData.shop_name + ", STATUS: " + addShopResult.status + ",RESPONSE:" + result.message)
+                            if (addShopResult.status == NetworkConstant.SUCCESS) {
+                                AppDatabase.getDBInstance()!!.addShopEntryDao().updateIsEditUploaded(1, addShopData.shop_id)
+                                jj++
+                                if (jj < list.size) {
+                                    editShop(list)
+                                }else{
+                                    jj=0
+                                }
+                            }
+                        }, { error ->
+                            error.printStackTrace()
+                        })
+                )
+            }
+        } catch (ex:Exception){
+            ex.printStackTrace()
+        }
     }
 
 

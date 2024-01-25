@@ -383,6 +383,21 @@
                     android:visibility="visible" />
 
                 <com.paricottfsm.widgets.AppCustomTextView
+                    android:id="@+id/contacts_TV"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:drawableStart="@drawable/ic_userclient"
+                    android:drawablePadding="@dimen/_15sdp"
+                    android:paddingLeft="@dimen/_17sdp"
+                    android:paddingTop="@dimen/_15sdp"
+                    android:paddingRight="@dimen/_17sdp"
+                    android:paddingBottom="@dimen/_7sdp"
+                    android:text="Contacts"
+                    android:textColor="@color/lightest_gray"
+                    android:textSize="@dimen/_12sdp"
+                    android:visibility="visible" />
+
+                <com.paricottfsm.widgets.AppCustomTextView
                     android:id="@+id/menu_beat_TV"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"

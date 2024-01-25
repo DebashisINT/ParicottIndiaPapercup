@@ -176,4 +176,20 @@ class ConfigFetchResponseModel : BaseResponse() {
     var FSSAILicNoMandatoryInShop4:Boolean?=null
 
 
+    // Begin puja 16.11.23 mantis-0026997 //
+
+    var isLeadContactNumber:Boolean?=false
+    var isModelEnable:Boolean?=false
+    var isPrimaryApplicationEnable:Boolean?=false
+    var isSecondaryApplicationEnable:Boolean?=false
+    var isBookingAmount:Boolean?=false
+    var isLeadTypeEnable:Boolean?=false
+    var isStageEnable:Boolean?=false
+    var isFunnelStageEnable:Boolean?=false
+    var IsGPSRouteSync:Boolean?=null
+    var IsSyncBellNotificationInApp:Boolean?=null
+    var IsShowCustomerLocationShare:Boolean?=true
+
+    //End puja 16.11.23 mantis-0026997 //
+    
 }

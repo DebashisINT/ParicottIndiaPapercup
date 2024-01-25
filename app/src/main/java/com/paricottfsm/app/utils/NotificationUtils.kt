@@ -59,6 +59,7 @@ class NotificationUtils(headerText: String, bodyText: String, shopId: String, lo
     @RequiresApi(Build.VERSION_CODES.O)
     fun CreateNotification(mContext: Context, shopID: String = "") {
 
+        println("tag_noti_check NotificationUtils.CreateNotification")
         if (Pref.isAttendanceFeatureOnly)
             return
 

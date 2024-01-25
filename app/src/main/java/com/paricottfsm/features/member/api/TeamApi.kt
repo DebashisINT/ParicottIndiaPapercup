@@ -3,6 +3,7 @@ package com.paricottfsm.features.member.api
 import com.paricottfsm.app.NetworkConstant
 import com.paricottfsm.base.BaseResponse
 import com.paricottfsm.features.addshop.model.AreaListResponseModel
+import com.paricottfsm.features.contacts.TeamListRes
 import com.paricottfsm.features.member.model.*
 import io.reactivex.Observable
 import retrofit2.Retrofit
@@ -22,6 +23,11 @@ interface TeamApi {
     @POST("UserHierarchy/HierarchyMemberList")
     fun getTeamList(@Field("session_token") session_token: String, @Field("user_id") user_id: String,
                     @Field("isFirstScreen") isFirstScreen: Boolean, @Field("isAllTeam") isAllTeam: Boolean): Observable<TeamListResponseModel>
+
+    @FormUrlEncoded
+    @POST("UserHierarchy/HierarchyMemberList")
+    fun getTeamListNew(@Field("session_token") session_token: String, @Field("user_id") user_id: String,
+                    @Field("isFirstScreen") isFirstScreen: Boolean, @Field("isAllTeam") isAllTeam: Boolean): Observable<TeamListRes>
 
     @FormUrlEncoded
     @POST("UserHierarchy/HierarchyShopList")

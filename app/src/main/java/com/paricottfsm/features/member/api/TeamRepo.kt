@@ -2,6 +2,7 @@ package com.paricottfsm.features.member.api
 
 import com.paricottfsm.app.Pref
 import com.paricottfsm.base.BaseResponse
+import com.paricottfsm.features.contacts.TeamListRes
 import com.paricottfsm.features.member.model.*
 import io.reactivex.Observable
 import timber.log.Timber
@@ -13,6 +14,11 @@ class TeamRepo(val apiService: TeamApi) {
     fun teamList(userId: String, isFirstScreen: Boolean, isAllTeam: Boolean): Observable<TeamListResponseModel> {
         Timber.d("PJP api teamList call")
         return apiService.getTeamList(Pref.session_token!!, userId, isFirstScreen, isAllTeam)
+    }
+
+    fun teamListNew(userId: String, isFirstScreen: Boolean, isAllTeam: Boolean): Observable<TeamListRes> {
+        Timber.d("PJP api teamList call")
+        return apiService.getTeamListNew(Pref.session_token!!, userId, isFirstScreen, isAllTeam)
     }
 
     fun teamShopList(userId: String, areaId: String): Observable<TeamShopListResponseModel> {
