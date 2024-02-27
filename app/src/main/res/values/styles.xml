@@ -99,8 +99,15 @@
     </style>
 
     <style name="DefaultNumberPickerTheme" parent="AppTheme">
-        <item name="colorControlNormal">@color/dividerColor</item>
+        <item name="colorControlNormal">@color/white</item>
         <item name="android:textSize">14sp</item>
+        <item name="android:textColorPrimary">@color/white</item>
+    </style>
+
+    <style name="DefaultNumberPickerTheme1" parent="AppTheme">
+        <item name="colorControlNormal">@color/black</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColorPrimary">@color/black</item>
     </style>
 
 

@@ -630,6 +630,11 @@
                                 android:layout_height="match_parent"
                                 android:background="@color/transparent"
                                 android:hint="Assign To"
+
+                                android:inputType="none"
+                                android:focusable="false"
+                                android:clickable="true"
+
                                 android:textColor="@color/black"
                                 android:textSize="@dimen/_11sdp"/>
                         </com.google.android.material.textfield.TextInputLayout>
@@ -702,6 +707,11 @@
                                     android:layout_height="match_parent"
                                     android:background="@color/transparent"
                                     android:hint="Type"
+
+                                    android:inputType="none"
+                                    android:focusable="false"
+                                    android:clickable="true"
+
                                     android:textColor="@color/black"
                                     android:textSize="@dimen/_11sdp"/>
                             </com.google.android.material.textfield.TextInputLayout>
@@ -769,6 +779,11 @@
                                     android:layout_height="match_parent"
                                     android:background="@color/transparent"
                                     android:hint="Status"
+
+                                    android:inputType="none"
+                                    android:focusable="false"
+                                    android:clickable="true"
+
                                     android:textColor="@color/black"
                                     android:textSize="@dimen/_11sdp"/>
                             </com.google.android.material.textfield.TextInputLayout>
@@ -845,6 +860,11 @@
                                     android:layout_height="match_parent"
                                     android:background="@color/transparent"
                                     android:hint="Source"
+
+                                    android:inputType="none"
+                                    android:focusable="false"
+                                    android:clickable="true"
+
                                     android:textColor="@color/black"
                                     android:textSize="@dimen/_11sdp"/>
                             </com.google.android.material.textfield.TextInputLayout>
@@ -915,6 +935,11 @@
                                     android:layout_height="match_parent"
                                     android:background="@color/transparent"
                                     android:hint="Reference"
+
+                                    android:inputType="none"
+                                    android:focusable="false"
+                                    android:clickable="true"
+
                                     android:textColor="@color/black"
                                     android:textSize="@dimen/_11sdp"/>
                             </com.google.android.material.textfield.TextInputLayout>
@@ -1041,6 +1066,11 @@
                                 android:layout_height="match_parent"
                                 android:background="@color/transparent"
                                 android:hint="Stage"
+
+                                android:inputType="none"
+                                android:focusable="false"
+                                android:clickable="true"
+
                                 android:textColor="@color/black"
                                 android:textSize="@dimen/_11sdp"/>
                         </com.google.android.material.textfield.TextInputLayout>

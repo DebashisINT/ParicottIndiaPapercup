@@ -1204,6 +1204,8 @@ fun serviceStatusActionable() {
             return
         }
         val serviceLauncher = Intent(this, LocationFuzedService::class.java)
+        Timber.d("TAG_CHECK_LOC_SERVICE_STATUS")
+
         if (Pref.user_id != null && Pref.user_id!!.isNotEmpty()) {
 
             Timber.e("MID: 26980 in serviceStatusActionable method if user_id is not null")
@@ -1222,6 +1224,7 @@ fun serviceStatusActionable() {
                         .setOverrideDeadline(1000)
                         .build()
 
+                Timber.d("TAG_CHECK_LOC_SERVICE_STATUS")
                 val resultCode = jobScheduler.schedule(jobInfo)
 
                 Timber.e("MID: 26980 in serviceStatusActionable method if user_id is not null $resultCode")
@@ -1236,6 +1239,7 @@ fun serviceStatusActionable() {
             } else {
 
                 Timber.e("MID: 26980 in serviceStatusActionable method if user_id is not null, SDK_VERSION is less 26")
+                Timber.d("TAG_CHECK_LOC_SERVICE_STATUS")
 
                 startService(serviceLauncher)
                 startMonitorService()

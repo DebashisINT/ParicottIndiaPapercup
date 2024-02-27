@@ -16,6 +16,19 @@ interface ScheduleTemplateDao {
     @Query("select * from " + AppConstant.SCHEDULE_TEMPLATE)
     fun getAll(): List<ScheduleTemplateEntity>
 
+    @Query("select * from " + AppConstant.SCHEDULE_TEMPLATE+" where template_name !='Send Manually'")
+    fun getAllExceptManually(): List<ScheduleTemplateEntity>
+
+    @Query("Select * from schedule_template where template_name=:template_name COLLATE NOCASE ")
+    fun getDuplicateTemplateData(template_name: String): List<ScheduleTemplateEntity>
+
+
+    @Query("select * from " + AppConstant.SCHEDULE_TEMPLATE+" where template_id=:template_id")
+    fun getByTemplate(template_id:String): ScheduleTemplateEntity
+
     @Query("DELETE FROM " + AppConstant.SCHEDULE_TEMPLATE)
     fun deleteAll()
+
+    @Query("DELETE FROM " + AppConstant.SCHEDULE_TEMPLATE+" where template_id=:template_id")
+    fun delete(template_id:String)
 }

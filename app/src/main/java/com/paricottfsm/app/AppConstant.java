@@ -177,4 +177,6 @@ public interface AppConstant {
     String RULE_TEMPLATE = "rule_template";
 
     String CRM_SCHEDULER_MASTER = "crm_scheduler_master";
+    String CRM_SCHEDULER_MASTER_DATETIME = "crm_scheduler_master_date_time";
+    String CRM_SCHEDULER_MASTER_CONTACTS = "crm_scheduler_master_contacts";
 }

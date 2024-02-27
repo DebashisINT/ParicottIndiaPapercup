@@ -3129,6 +3129,24 @@ class AppUtils {
             return differenceInDays.toString()
         }
 
+        fun addMonths(startDt:String):String{
+            try {
+                val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH)
+                var convertedDate = Date()
+                try {
+                    convertedDate = dateFormat.parse(startDt)
+                } catch (e: ParseException) {
+                    e.printStackTrace()
+                }
+                convertedDate.month = convertedDate.month+1
+
+                return dateFormat.format(convertedDate.time)
+            }catch (ex:Exception){
+                ex.printStackTrace()
+                return ""
+            }
+        }
+
         fun getPrevXMonthDate(prevMonthCount:Int):String{
             val calendar = Calendar.getInstance()
             calendar.add(Calendar.MONTH, -prevMonthCount)

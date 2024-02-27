@@ -703,7 +703,7 @@ object Pref : PreferenceHolder() {
     )
     var ShopScreenAftVisitRevisitGlobal: Boolean by bindToPreferenceField(
         true,
-        "ShopScreenAftVisitRevisit"
+        "ShopScreenAftVisitRevisitGlobal"
     )
 
     var NotiCountFlag: Boolean by bindToPreferenceField(false, "NotiCountFlag")
@@ -718,7 +718,7 @@ object Pref : PreferenceHolder() {
     var IsAllowBreakageTracking: Boolean by bindToPreferenceField(false, "IsAllowBreakageTracking")
     var IsAllowBreakageTrackingunderTeam: Boolean by bindToPreferenceField(
         false,
-        "IsFeedbackAvailableInShop"
+        "IsAllowBreakageTrackingunderTeam"
     )
 
     var IsRateEnabledforNewOrderScreenwithSize: Boolean by bindToPreferenceField(
@@ -1003,7 +1003,17 @@ object Pref : PreferenceHolder() {
     var IsShowCustomerLocationShare: Boolean by bindToPreferenceField(true, "IsShowCustomerLocationShare")
     var scheduler_template: String? by bindToPreferenceFieldNullable()
     var scheduler_file: String? by bindToPreferenceFieldNullable()
+    var storeGmailId: String? by bindToPreferenceFieldNullable()
+    var storeGmailPassword: String? by bindToPreferenceFieldNullable()
     var minAccuracy: String by bindToPreferenceField("200", "minAccuracy")
+    var isAutoMailProceeding: Boolean by bindToPreferenceField(false, "isAutoMailProceeding")
+
+    var isTemplateDialogAlertShow: Boolean by bindToPreferenceField(true, "isTemplateDialogAlertShow")
+    var logId: String by bindToPreferenceField("", "logId")
+    var loginPassword: String by bindToPreferenceField("", "loginPassword")
+    var AdditionalInfoRequiredForTimelines: Boolean by bindToPreferenceField(true, "AdditionalInfoRequiredForTimelines")
+
+
 }
 
 

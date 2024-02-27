@@ -191,5 +191,9 @@ class ConfigFetchResponseModel : BaseResponse() {
     var IsShowCustomerLocationShare:Boolean?=true
 
     //End puja 16.11.23 mantis-0026997 //
-    
+
+    //begin mantis id 0027255 AdditionalInfoRequiredForTimelines functionality Puja 21-02-2024
+    var AdditionalInfoRequiredForTimelines:Boolean? = true
+    //end mantis id 0027255 AdditionalInfoRequiredForTimelines functionality Puja 21-02-2024
+
 }

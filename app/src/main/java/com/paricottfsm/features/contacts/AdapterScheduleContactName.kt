@@ -81,7 +81,8 @@ class AdapterScheduleContactName(var mContext:Context, var customerList:ArrayLis
     inner class ContactNameViewHolder(itemView: View):RecyclerView.ViewHolder(itemView){
         fun bindItems(){
             itemView.apply {
-                tv_row_cont_sel_name.text = mList?.get(adapterPosition)?.contact_name
+                //tv_row_cont_sel_name.text = mList?.get(adapterPosition)?.contact_name
+                tv_row_cont_sel_name.text = mList?.get(adapterPosition)?.contact_name +" ("+mList?.get(adapterPosition)?.contact_number+")"
                 if(mList?.get(adapterPosition)!!.isTick){
                     cb_row_cont_sel_name.isChecked = true
                 }else{
@@ -114,7 +115,8 @@ class AdapterScheduleContactName(var mContext:Context, var customerList:ArrayLis
             filterList?.clear()
 
             tempList?.indices!!
-                .filter { tempList?.get(it)?.contact_name?.toLowerCase()?.contains(p0?.toString()?.toLowerCase()!!)!!}
+                .filter { tempList?.get(it)?.contact_name?.toLowerCase()?.contains(p0?.toString()?.toLowerCase()!!)!! ||
+                        tempList?.get(it)?.contact_number?.toLowerCase()?.contains(p0?.toString()?.toLowerCase()!!)!!}
                 .forEach { filterList?.add(tempList?.get(it)!!) }
 
             results.values = filterList

@@ -4,8 +4,6 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import androidx.room.Update
-import com.paricottfsm.features.viewAllOrder.orderOptimized.CommonProductCatagory
 
 @Dao
 interface SchedulerMasterDao {
@@ -22,12 +20,28 @@ interface SchedulerMasterDao {
     @Query("delete from crm_scheduler_master")
     fun deleteAll()
 
-    @Query("select * from crm_scheduler_master where select_date=:select_date and isActivityDone=:isActivityDone")
-    fun getSchedulerByDate(select_date:String , isActivityDone:Boolean): List<SchedulerMasterEntity>
+    @Query("Select * from crm_scheduler_master where scheduler_name LIKE '%' || :schedulerNameorNum || '%' ")
+    fun getSchedulerBySearchDataNew(schedulerNameorNum: String): List<SchedulerMasterEntity>
 
-    @Query("update crm_scheduler_master set isActivityDone =:isActivityDone where select_contact_id=:select_contact_id \n" +
-            "and select_timestamp=:select_timestamp \n" +
-            "and save_date_time=:save_date_time")
-    fun updateSchedulerSucess(select_contact_id:String,select_timestamp:String,save_date_time:String,isActivityDone:Boolean)
+    @Query("Select * from crm_scheduler_master where scheduler_name=:scheduler_name COLLATE NOCASE ")
+    fun getDuplicateSchedulerData(scheduler_name: String): List<SchedulerMasterEntity>
+
+    @Query("delete from crm_scheduler_master where scheduler_id=:scheduler_id")
+    fun deleteScheduler(scheduler_id:String)
+    @Query("select * from crm_scheduler_master_date_time where select_date =:currentDate \n" +
+            "and  :currentTimeSt > select_timestamp and isDone =:isDone and scheduler_id in \n" +
+            "(select scheduler_id from crm_scheduler_master where isAutoMail = :isAutoMail) order by select_time asc")
+    fun getTimeStampToSent(currentDate:String , isDone:Boolean, isAutoMail:Boolean,currentTimeSt:String): List<SchedulerDateTimeEntity>
+
+    @Query("update crm_scheduler_master_date_time set isDone =:isDone where scheduler_id=:scheduler_id and select_timestamp=:select_timestamp")
+    fun updateSchedulerSucess1(scheduler_id:String,select_timestamp:String,isDone:Boolean)
+
+    @Query("select * from crm_scheduler_master where scheduler_id=:scheduler_id")
+    fun getSchedulerDtls(scheduler_id:String): SchedulerMasterEntity
+    @Query("update crm_scheduler_master_date_time set isDone =:isDone where scheduler_id=:scheduler_id and select_timestamp=:select_timestamp")
+    fun updateSchedulerAfterEdit(scheduler_id:String,select_timestamp:String,isDone:Boolean)
+
+    @Query("update crm_scheduler_master_date_time set isDone =:isDone")
+    fun updateTest(isDone:Boolean)
 
 }

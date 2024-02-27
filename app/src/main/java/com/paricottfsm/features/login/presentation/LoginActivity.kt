@@ -400,7 +400,7 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
 
                             val configResponse = result as ConfigFetchResponseModel
 //                            XLog.d("ConfigFetchApiResponse : " + "\n" + "Status=====> " + configResponse.status + ", Message====> " + configResponse.message)
-                            Timber.d("ConfigFetchApiResponse : " + "\n" + "Status=====> " + configResponse.status + ", Message====> " + configResponse.message)
+                            Timber.d("GlobalSettingsConfigFetchApiResponse : " + "\n" + "Status=====> " + configResponse.status + ", Message====> " + configResponse.message)
                            /* progress_wheel.stopSpinning()*/
                             if (configResponse.status == NetworkConstant.SUCCESS) {
 
@@ -839,6 +839,14 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
 
                                 if (configResponse.IsShowCustomerLocationShare != null)
                                     Pref.IsShowCustomerLocationShare = configResponse.IsShowCustomerLocationShare!!
+
+                                //begin mantis id 0027255 AdditionalInfoRequiredForTimelines functionality Puja 21-02-2024
+
+                                if (configResponse.AdditionalInfoRequiredForTimelines != null)
+                                    Pref.AdditionalInfoRequiredForTimelines = configResponse.AdditionalInfoRequiredForTimelines!!
+
+                                //end mantis id 0027255 AdditionalInfoRequiredForTimelines functionality Puja 21-02-2024
+
 
                             }
                             isApiInitiated = false
@@ -4767,6 +4775,9 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
             Pref.pwd = ""
         }
 
+        Pref.logId = username
+        Pref.loginPassword = password
+
         var mLocation = ""
 
         if (Pref.latitude != "0.0" && Pref.longitude != "0.0") {
@@ -4974,7 +4985,8 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
                             }
                             isApiInitiated = false
 
-                        }, { error ->
+                        },
+                            { error ->
                             login_TV.isEnabled = true
                             enableScreen()
                             isApiInitiated = false
@@ -8050,6 +8062,9 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LocationListener {
             locationObj.minutes = loginminutesStr //LocationWizard.getMinute()
             locationObj.hour = loginhourStr //LocationWizard.getHour()
             AppDatabase.getDBInstance()!!.userLocationDataDao().insertAll(locationObj)
+            /*if(Pref.IsRouteStartFromAttendance == false){
+                AppDatabase.getDBInstance()!!.userLocationDataDao().insertAll(locationObj)
+            }*/
 
             Timber.d("insertion login tag ends ${AppUtils.getCurrentDateTime()}")
 

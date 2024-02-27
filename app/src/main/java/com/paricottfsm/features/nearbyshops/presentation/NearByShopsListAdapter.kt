@@ -131,6 +131,7 @@ import timber.log.Timber
 // 2.0 NearByShopsListAdapter  AppV 4.0.6  Saheli   11/01/2023 IsAllowShopStatusUpdate
 // 3.0 NearByShopsListAdapter  AppV 4.0.6  Suman   31/01/2023 Retailer/Entity show from room db mantis_id 25636
 class NearByShopsListAdapter(context: Context, list: List<AddShopDBModelEntity>, val listener: NearByShopsListClickListener) : RecyclerView.Adapter<NearByShopsListAdapter.MyViewHolder>() {
+
     private val layoutInflater: LayoutInflater
     private var context: Context
     private var mList: List<AddShopDBModelEntity>
@@ -158,9 +159,11 @@ class NearByShopsListAdapter(context: Context, list: List<AddShopDBModelEntity>,
     }
 
     class MyViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+
         val newOrderList = ArrayList<NewOrderModel>()
         fun bindItems(context: Context, list: List<AddShopDBModelEntity>, listener: NearByShopsListClickListener) {
             //Picasso.with(context).load(list[adapterPosition].shopImageLocalPath).into(itemView.shop_image_IV)
+            println("time_check NearByShopsListAdapterstart")
             try {
                 if (!TextUtils.isEmpty(list[adapterPosition].shopImageLocalPath)) {
                     Picasso.get()
@@ -1113,7 +1116,7 @@ class NearByShopsListAdapter(context: Context, list: List<AddShopDBModelEntity>,
             itemView.call_log_his_ll.setOnClickListener {
                 (context as DashboardActivity).loadFragment(FragType.ShopCallHisFrag, true, list[adapterPosition].shop_id)
             }
-
+            println("time_check NearByShopsListAdapterend")
 
         }
     }

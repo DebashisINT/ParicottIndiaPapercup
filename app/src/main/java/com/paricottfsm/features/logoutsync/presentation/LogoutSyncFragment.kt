@@ -6777,7 +6777,7 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
                     {
                         override fun getParams(): Map<String, String>? {
                             val params: MutableMap<String, String> = HashMap()
-                            params.put("userId", "eurobondwa")
+                            params.put("userid", "eurobondwa")
                             params.put("password", "Eurobondwa@123")
                             params.put("wabaNumber", "917888488891")
                             params.put("fromDate", "${AppUtils.getCurrentDateForShopActi()}")
@@ -6868,6 +6868,22 @@ class LogoutSyncFragment : BaseFragment(), View.OnClickListener {
             distance = Pref.tempDistance.toDouble() + totalDistance
         } else
             distance = Pref.tempDistance.toDouble()
+
+        //logout distance calculation mantis id 27259 Suman 20-02-2023 begin
+        //val allLocationList = AppDatabase.getDBInstance()!!.userLocationDataDao().getLocationUpdateForADay(AppUtils.getCurrentDateForShopActi()) as ArrayList<UserLocationDataEntity>
+        val allLocationList = AppDatabase.getDBInstance()!!.userLocationDataDao().getLocationUpdateForADayNotSyn(AppUtils.getCurrentDateForShopActi(), true) as ArrayList<UserLocationDataEntity>
+        if(allLocationList.size > 0){
+            var prevObj = allLocationList.get(allLocationList.size-1)
+            //var prevObj = allLocationList.get(0)
+            distance = LocationWizard.getDistance(prevObj.latitude.toDouble(),prevObj.longitude.toDouble(),
+                Pref.logout_latitude.toDouble(),Pref.logout_longitude.toDouble()).toDouble()
+            //distance = distance + Pref.tempDistance.toDouble()
+            Timber.d("dist ${distance.toString()} temp_dist ${Pref.tempDistance.toString()}")
+        }else{
+            distance = Pref.tempDistance.toDouble()
+            Timber.d("dist else ${distance.toString()} temp_dist ${Pref.tempDistance.toString()}")
+        }
+        //logout distance xalculation mantis id 27259 Suman 20-02-2023 end
 
 
         var location = ""

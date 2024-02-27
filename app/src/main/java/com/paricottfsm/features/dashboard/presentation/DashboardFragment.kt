@@ -2096,6 +2096,22 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
                     userlocation.meeting = AppDatabase.getDBInstance()!!.addMeetingDao().getMeetingDateWise(AppUtils.getCurrentDateForShopActi()).size.toString()
                     userlocation.network_status = if (AppUtils.isOnline(mContext)) "Online" else "Offline"
                     userlocation.battery_percentage = AppUtils.getBatteryPercentage(mContext).toString()
+
+                    //negative distance handle Suman 06-02-2024 mantis id 0027225 begin
+                    try{
+                        var distReftify = userlocation.distance.toDouble()
+                        if(distReftify<0){
+                            var locL = AppDatabase.getDBInstance()!!.userLocationDataDao().getLocationUpdateForADay(AppUtils.getCurrentDateForShopActi()) as ArrayList<UserLocationDataEntity>
+                            var lastLoc = locL.get(locL.size-1)
+                            var d = LocationWizard.getDistance(userlocation.latitude.toDouble(),userlocation.longitude.toDouble(), lastLoc.latitude.toDouble()   ,lastLoc.longitude.toDouble())
+                            userlocation.distance = d.toString()
+                        }
+                    }catch (ex:Exception){
+                        ex.printStackTrace()
+                        userlocation.distance = "0.0"
+                    }
+                    //negative distance handle Suman 06-02-2024 mantis id 0027225 end
+
                     AppDatabase.getDBInstance()!!.userLocationDataDao().insertAll(userlocation)
 
                     Pref.totalS2SDistance = (Pref.totalS2SDistance.toDouble() + userlocation.distance.toDouble()).toString()
@@ -4832,6 +4848,14 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
                                                     Pref.IsCallLogHistoryActivated = response.getconfigure?.get(i)?.Value == "1"
                                                 }
                                             }
+                                            //begin mantis id 0027255 AdditionalInfoRequiredForTimelines functionality Puja 20-02-2024
+                                            else if (response.getconfigure?.get(i)?.Key.equals("AdditionalInfoRequiredForTimelines", ignoreCase = true)) {
+                                                Pref.AdditionalInfoRequiredForTimelines = response.getconfigure!![i].Value == "1"
+                                                if (!TextUtils.isEmpty(response.getconfigure?.get(i)?.Value)) {
+                                                    Pref.AdditionalInfoRequiredForTimelines = response.getconfigure?.get(i)?.Value == "1"
+                                                }
+                                            }
+                                            //end mantis id 0027255 AdditionalInfoRequiredForTimelines functionality Puja 20-02-2024
                                         }
                                     }
                                 } catch (e: Exception) {
@@ -5289,7 +5313,10 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
                                     Pref.IsSyncBellNotificationInApp = configResponse.IsSyncBellNotificationInApp!!
                                 if (configResponse.IsShowCustomerLocationShare != null)
                                     Pref.IsShowCustomerLocationShare = configResponse.IsShowCustomerLocationShare!!
-
+                                //begin mantis id 0027255 AdditionalInfoRequiredForTimelines functionality Puja 21-02-2024
+                                if (configResponse.AdditionalInfoRequiredForTimelines != null)
+                                    Pref.AdditionalInfoRequiredForTimelines = configResponse.AdditionalInfoRequiredForTimelines!!
+                                //end mantis id 0027255 AdditionalInfoRequiredForTimelines functionality Puja 21-02-2024
 
                             }
                             BaseActivity.isApiInitiated = false
@@ -8741,6 +8768,22 @@ class DashboardFragment : BaseFragment(), View.OnClickListener, HBRecorderListen
                         if (AppUtils.isOnline(mContext)) "Online" else "Offline"
                     userlocation.battery_percentage =
                         AppUtils.getBatteryPercentage(mContext).toString()
+
+                    //negative distance handle Suman 06-02-2024 mantis id 0027225 begin
+                    try{
+                        var distReftify = userlocation.distance.toDouble()
+                        if(distReftify<0){
+                            var locL = AppDatabase.getDBInstance()!!.userLocationDataDao().getLocationUpdateForADay(AppUtils.getCurrentDateForShopActi()) as ArrayList<UserLocationDataEntity>
+                            var lastLoc = locL.get(locL.size-1)
+                            var d = LocationWizard.getDistance(userlocation.latitude.toDouble(),userlocation.longitude.toDouble(), lastLoc.latitude.toDouble()   ,lastLoc.longitude.toDouble())
+                            userlocation.distance = d.toString()
+                        }
+                    }catch (ex:Exception){
+                        ex.printStackTrace()
+                        userlocation.distance = "0.0"
+                    }
+                    //negative distance handle Suman 06-02-2024 mantis id 0027225 end
+
                     AppDatabase.getDBInstance()!!.userLocationDataDao().insertAll(userlocation)
 
                     Timber.e("=====Shop auto revisit data added=======")
